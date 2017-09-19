@@ -28,11 +28,23 @@ function deleteTodoFromServer (id) {
 }
 deleteTodoFromServer.type = 'DELETE_TODO_FROM_SERVER'
 
+function addTag (id, tagName) {
+  return {type: addTag.type, id, tagName}
+}
+addTag.type = 'ADD_TAG'
+
+function setTagsFromServer (id, tags) {
+  return {type: setTagsFromServer.type, id, tags}
+}
+setTagsFromServer.type = 'SET_TAGS_FROM_SERVER'
+
 module.exports = {
   init,
   loadData,
   addTodo,
   todoFromServer,
   deleteTodo,
-  deleteTodoFromServer
+  deleteTodoFromServer,
+  addTag,
+  setTagsFromServer
 }

@@ -28,6 +28,7 @@ class TodoServer {
           case actions.addTodo.type: return this.onAddTodo(action, username)
           case actions.init.type: return this.onInit(action, username)
           case actions.deleteTodo.type: return this.onDeleteTodo(action, username)
+          case actions.addTag.type: return this.onAddTag(action, username)
           default: return [] // Do nothing
         }
       })
@@ -50,6 +51,9 @@ class TodoServer {
           return res.json().then(user => {
             if (!user.nextId > 0) user.nextId = 1
             if (!Array.isArray(user.todos)) user.todos = []
+            user.todos.forEach(todo => {
+              if (!Array.isArray(todo.tags)) todo.tags = []
+            })
             return user
           })
         }
@@ -115,12 +119,28 @@ class TodoServer {
       })
   }
 
-  // onAddTodo (action, username) {
-  //   if (!this.state[username]) {
-  //     this.state[username] = {nextId: 1, todos: []}
-  //   }
-
-  // }
+  onAddTag (action, username) {
+    return this.getUser(username)
+      .then(user => {
+        const todo = user.todos.find(x => x.id == action.id)
+        if (todo) {
+          todo.tags = todo.tags.filter(x => x !== action.tagName)
+          todo.tags.unshift(action.tagName)
+          return this.saveUser(username, user).then(() => todo.tags)
+        }
+      })
+      .then(newTags => {
+        if (newTags) {
+          return [actions.setTagsFromServer(action.id, newTags)]
+        } else {
+          return []
+        }
+      })
+      .catch(err => {
+        console.log('Error while adding todo:', err)
+        throw err
+      })
+  }
 }
 
 module.exports = TodoServer
